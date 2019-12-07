@@ -38,35 +38,37 @@ async function getNewInfo(urls) {
     for (let url of urls) {
         try {
             await page.goto(url);
+        
+            const assetUrls = await page.evaluate(() => {
+                let todos = document.querySelectorAll(".article-text p");
+                let title = " ";
+                let body = " ";
+                var summary;
+                try {
+                    summary = document.querySelector('.article-summary').textContent
+                } catch (error) {
+                    summary = "";
+                };
+                try {
+                    title = document.querySelector('.article-title').textContent;
+                } catch (error) {
+                    title = " ";
+                }
+                body = Array.prototype.map.call(todos, function (t) {
+                    try{
+                        return t.textContent;
+                    }catch(error){
+                        return ""
+                    }
+                }).join('');
+                return {title, summary, body}
+            })
+            assetUrls.url = url;
+            data.push(assetUrls)
         } catch (error) {
+            console.log(url + ' failed')
             continue;
         }
-        const assetUrls = await page.evaluate(() => {
-            let todos = document.querySelectorAll(".article-text p");
-            let title = " ";
-            let body = " ";
-            var summary;
-            try {
-                summary = document.querySelector('.article-summary').textContent
-            } catch (error) {
-                summary = "";
-            };
-            try {
-                title = document.querySelector('.article-title').textContent;
-            } catch (error) {
-                title = " ";
-            }
-            body = Array.prototype.map.call(todos, function (t) {
-                try{
-                    return t.textContent;
-                }catch(error){
-                    return ""
-                }
-            }).join('');
-            return {title, summary, body}
-        })
-        assetUrls.url = url;
-        data.push(assetUrls)
     };
 
     await browser.close()

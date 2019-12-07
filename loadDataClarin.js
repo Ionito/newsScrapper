@@ -40,20 +40,24 @@ async function getNewInfo(urls){
     const data = [];
 
     for (let url of urls) {
-        await page.goto(url);
-        const assetUrls = await page.evaluate(()=>{
-            let todos = document.querySelectorAll(".body-nota p");
-            var summary;
-            try{ summary = document.querySelector('.bajada').textContent } catch (error){ summary = " "; };
-            let title;
-            try{ title = document.querySelector('#title').textContent; } catch (error) { title = " " };
-            let body; 
-            try{  body = Array.prototype.map.call(todos, function(t) { return t.textContent; }).join(''); } catch (error) { body = " "}
-            return  {title , summary, body}
-        })
-        assetUrls.url = url;
-        data.push(assetUrls)
-   };
+        try {
+            await page.goto(url);
+            const assetUrls = await page.evaluate(()=>{
+                let todos = document.querySelectorAll(".body-nota p");
+                var summary;
+                try{ summary = document.querySelector('.bajada').textContent } catch (error){ summary = " "; };
+                let title;
+                try{ title = document.querySelector('#title').textContent; } catch (error) { title = " " };
+                let body; 
+                try{  body = Array.prototype.map.call(todos, function(t) { return t.textContent; }).join(''); } catch (error) { body = " "}
+                return  {title , summary, body}
+            })
+            assetUrls.url = url;
+            data.push(assetUrls)    
+        } catch (err) {
+            console.log("Failed: " + url)
+        }
+    };
     
     await browser.close()
     return data
