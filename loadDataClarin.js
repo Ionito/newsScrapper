@@ -5,6 +5,7 @@ const config = require("./config");
 const TOTAL_NEWS = config.numberArticles;
 const PORTADA = 'http://www.clarin.com';
 const uniqueElements = arr => [...new Set(arr)];
+const ingester = require("./ingester")
 
 async function getNews() {
     const browser = await puppeteer.launch({
@@ -15,18 +16,19 @@ async function getNews() {
    // scrapeo la home de pagina 12
     await page.goto(PORTADA);
    //saco las urls de links y filtro para eliminar las que no son de pag 12
-   
-   const assetUrls = await page.$$eval('article div.mt a', assetLinks => assetLinks.map(link => link.href).filter(link => link.indexOf('clarin') != -1 && link.indexOf('html') != -1 && link.indexOf('autor') == -1));
-  
+
+    const assetUrls = await page.$$eval('article div.mt a', assetLinks => assetLinks.map(link => link.href).filter(link => link.indexOf('clarin') != -1 && link.indexOf('html') != -1 && link.indexOf('autor') == -1));
+
     //filtro las 10 primeras urls 
     const firstUrls = uniqueElements(assetUrls).slice(0, TOTAL_NEWS );
 
-   //escribo las urls en un file para tener el control
-   await writeArrayFile(firstUrls);
-   //aca obtengo el contenido de todas esas notas TITLE -BODY -SUMMARY 
-   const bodyInfo = await getNewInfo(firstUrls) 
+    //escribo las urls en un file para tener el control
+    await writeArrayFile(firstUrls);
+    //aca obtengo el contenido de todas esas notas TITLE -BODY -SUMMARY 
+    const bodyInfo = await getNewInfo(firstUrls) 
 
-   await writeJson(bodyInfo)
+    await ingester.post(PORTADA, bodyInfo)
+//    await writeJson(bodyInfo)
     await browser.close()
 }
 
