@@ -1,7 +1,8 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
+const config = require("./config");
 
-const TOTAL_NEWS = 10;
+const TOTAL_NEWS = config.numberArticles;
 const PORTADA = 'https://www.pagina12.com.ar';
 
 async function getNews() {

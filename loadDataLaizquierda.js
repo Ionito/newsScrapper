@@ -3,7 +3,7 @@ const fs = require('fs');
 const config = require("./config");
 
 const TOTAL_NEWS = config.numberArticles;
-const PORTADA = 'http://www.clarin.com';
+const PORTADA = 'http://www.laizquierdadiario.com/';
 const uniqueElements = arr => [...new Set(arr)];
 
 async function getNews() {
@@ -16,7 +16,7 @@ async function getNews() {
     await page.goto(PORTADA);
    //saco las urls de links y filtro para eliminar las que no son de pag 12
    
-   const assetUrls = await page.$$eval('article div.mt a', assetLinks => assetLinks.map(link => link.href).filter(link => link.indexOf('clarin') != -1 && link.indexOf('html') != -1 && link.indexOf('autor') == -1));
+   const assetUrls = await page.$$eval('div.noticia a', assetLinks => assetLinks.map(link => link.href).filter(link => link.indexOf('laizquierdadiario') != -1));
   
     //filtro las 10 primeras urls 
     const firstUrls = uniqueElements(assetUrls).slice(0, TOTAL_NEWS );
@@ -40,11 +40,11 @@ async function getNewInfo(urls){
     for (let url of urls) {
         await page.goto(url);
         const assetUrls = await page.evaluate(()=>{
-            let todos = document.querySelectorAll(".body-nota p");
+            let todos = document.querySelectorAll("div.articulo p");
             var summary;
-            try{ summary = document.querySelector('.bajada').textContent } catch (error){ summary = " "; };
+            try{ summary = document.querySelector('div.header-articulo p').textContent } catch (error){ summary = " "; };
             let title;
-            try{ title = document.querySelector('#title').textContent; } catch (error) { title = " " };
+            try{ title = document.querySelector('div.header-articulo h1').textContent; } catch (error) { title = " " };
             let body; 
             try{  body = Array.prototype.map.call(todos, function(t) { return t.textContent; }).join(''); } catch (error) { body = " "}
             return  {title , summary, body}
@@ -60,7 +60,7 @@ async function getNewInfo(urls){
 
 async function writeJson(yourArray){
     var myJsonString = JSON.stringify(yourArray);
-    fs.writeFile('./data/dataClarin.json', myJsonString , function(err) {
+    fs.writeFile('./data/dataLaIzquierda.json', myJsonString , function(err) {
         if(err) { return console.log(err); } console.log("The file was saved!");
     }
     );
@@ -68,7 +68,7 @@ async function writeJson(yourArray){
 
 
 async function writeArrayFile(first10url) {
-    var file = fs.createWriteStream('urlsClarin.txt');
+    var file = fs.createWriteStream('urlsLaIzquierda.txt');
     file.on('error', function (err) {
         /* error handling */ });
     first10url.forEach(function (v) {

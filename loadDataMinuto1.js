@@ -2,7 +2,9 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 const uniqueElements = arr => [...new Set(arr)];
 
-const TOTAL_NEWS = 10;
+const config = require("./config");
+
+const TOTAL_NEWS = config.numberArticles;
 const PORTADA = 'https://www.minutouno.com/';
 
 async function getNews() {
