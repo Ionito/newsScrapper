@@ -16,7 +16,7 @@ async function getNews() {
     await page.goto(PORTADA);
    //saco las urls de links y filtro para eliminar las que no son de pag 12
    
-   const assetUrls = await page.$$eval('article a', assetLinks => assetLinks.map(link => link.href).filter(link => link.indexOf('lanacion') != -1));
+   const assetUrls = await page.$$eval('article a', assetLinks => assetLinks.map(link => link.href).filter(link => link.indexOf('lanacion') != -1 && link.indexOf('editoriales') == -1));
   
     //filtro las 10 primeras urls 
     const firstUrls = uniqueElements(assetUrls).slice(0, TOTAL_NEWS );
@@ -38,7 +38,12 @@ async function getNewInfo(urls){
     const data = [];
 
     for (let url of urls) {
-        await page.goto(url);
+        try{
+await page.goto(url);
+        }catch (error){
+            continue;
+        }
+        
         const assetUrls = await page.evaluate(()=>{
             let todos = document.querySelectorAll("#cuerpo p");
             var summary;

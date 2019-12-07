@@ -38,7 +38,11 @@ async function getNewInfo(urls){
     const data = [];
 
     for (let url of urls) {
-        await page.goto(url);
+        try{
+            await page.goto(url);
+        }catch (error){
+            console.log("errorIoni")
+        }
         const assetUrls = await page.evaluate(()=>{
             let todos = document.querySelectorAll("div.body p");
             var summary;
